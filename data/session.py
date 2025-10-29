@@ -1,19 +1,23 @@
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+import os
 
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from dotenv import load_dotenv
 from data.models import Base
 
 
-DATABASE_URL = "postgresql+psycopg2://ausier:ausier@localhost:5432/mglu_db"
+load_dotenv()
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(bind=engine)
+engine = create_async_engine(os.environ.get("DATABASE_URL"), echo=False)
+SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def init_all_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+async def get_db():
+    async with SessionLocal() as db:
+        try:
+            yield db
+        finally:
+            await db.close()
 
