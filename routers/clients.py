@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 
 from data.schemas import Client as ClientSchema
 from data.models import Client
@@ -31,7 +32,25 @@ async def create_client(data: ClientSchema, db: AsyncSession = Depends(get_db)):
         created_at=data.created_at,
         updated_at=data.updated_at
     )
+    
     db.add(new_client)
-    await db.commit()
-    await db.refresh(new_client)
+    try:
+        await db.commit()
+        await db.refresh(new_client)
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail="Client with this email already exists.")
+    
     return new_client
+
+@router.put("/{client_id}", response_model=ClientSchema)
+async def put_client(data: ClientSchema, db: AsyncSession = Depends(get_db)):
+    pass
+
+@router.patch("/{client_id}", response_model=ClientSchema)
+async def patch_client(data: ClientSchema, db: AsyncSession = Depends(get_db)):
+    pass
+
+@router.delete("/{client_id}", response_model=dict)
+async def delete_client(client_id: int, db: AsyncSession = Depends(get_db)):
+    pass
