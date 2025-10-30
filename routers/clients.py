@@ -3,20 +3,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 
-from data.schemas import Client as ClientSchema
+from data.schemas import ClientBase, ClientCreate
 from data.models import Client
 from data.session import get_db
 
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
-@router.get("/", response_model=list[ClientSchema])
+@router.get("/", response_model=list[ClientBase])
 async def get_clients(db: AsyncSession = Depends(get_db)):
     stmt = select(Client)
     result = await db.scalars(stmt)
     clients = result.all()
 
-    return [ClientSchema(
+    return [ClientBase(
         id=client.id,
         name=client.name,
         email=client.email,
@@ -24,7 +24,7 @@ async def get_clients(db: AsyncSession = Depends(get_db)):
         updated_at=client.updated_at
     ) for client in clients]
 
-@router.get("/{client_id}", response_model=ClientSchema)
+@router.get("/{client_id}", response_model=ClientBase)
 async def get_client_by_id(client_id: int, db: AsyncSession = Depends(get_db)):
     stmt = select(Client).where(Client.id == client_id)
     result = await db.scalars(stmt)
@@ -35,13 +35,11 @@ async def get_client_by_id(client_id: int, db: AsyncSession = Depends(get_db)):
     
     return client
 
-@router.post("/", response_model=ClientSchema)
-async def create_client(data: ClientSchema, db: AsyncSession = Depends(get_db)):
+@router.post("/", response_model=ClientBase)
+async def create_client(data: ClientCreate, db: AsyncSession = Depends(get_db)):
     new_client = Client(
         name=data.name,
-        email=data.email,
-        created_at=data.created_at,
-        updated_at=data.updated_at
+        email=data.email
     )
     
     db.add(new_client)
@@ -54,8 +52,8 @@ async def create_client(data: ClientSchema, db: AsyncSession = Depends(get_db)):
     
     return new_client
 
-@router.put("/{client_id}", response_model=ClientSchema)
-async def put_client(client_id: int, data: ClientSchema, db: AsyncSession = Depends(get_db)):
+@router.put("/{client_id}", response_model=ClientBase)
+async def put_client(client_id: int, data: ClientCreate, db: AsyncSession = Depends(get_db)):
     """
     Substitui completamente os dados de um cliente.
     Requer todos os campos obrigatórios (PUT = substituição total).
@@ -79,8 +77,8 @@ async def put_client(client_id: int, data: ClientSchema, db: AsyncSession = Depe
 
     return client
 
-@router.patch("/{client_id}", response_model=ClientSchema)
-async def patch_client(client_id: int, data: ClientSchema, db: AsyncSession = Depends(get_db)):
+@router.patch("/{client_id}", response_model=ClientBase)
+async def patch_client(client_id: int, data: ClientCreate, db: AsyncSession = Depends(get_db)):
     """
     Atualiza parcialmente os dados de um cliente.
     Somente os campos enviados serão modificados.
