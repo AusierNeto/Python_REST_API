@@ -8,7 +8,7 @@ from data.models import Client
 from data.session import get_db
 
 
-router = APIRouter(prefix="/clients", tags=["clients"])
+router = APIRouter(prefix="/clients", tags=["Clients"])
 
 @router.get("/", response_model=list[ClientBase])
 async def get_clients(db: AsyncSession = Depends(get_db)):
