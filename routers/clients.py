@@ -54,10 +54,6 @@ async def create_client(data: ClientCreate, db: AsyncSession = Depends(get_db)):
 
 @router.put("/{client_id}", response_model=ClientBase)
 async def put_client(client_id: int, data: ClientCreate, db: AsyncSession = Depends(get_db)):
-    """
-    Substitui completamente os dados de um cliente.
-    Requer todos os campos obrigatórios (PUT = substituição total).
-    """
     stmt = select(Client).where(Client.id == client_id)
     result = await db.scalars(stmt)
     client = result.first()
@@ -79,10 +75,6 @@ async def put_client(client_id: int, data: ClientCreate, db: AsyncSession = Depe
 
 @router.patch("/{client_id}", response_model=ClientBase)
 async def patch_client(client_id: int, data: ClientCreate, db: AsyncSession = Depends(get_db)):
-    """
-    Atualiza parcialmente os dados de um cliente.
-    Somente os campos enviados serão modificados.
-    """
     stmt = select(Client).where(Client.id == client_id)
     result = await db.scalars(stmt)
     client = result.first()
@@ -90,7 +82,6 @@ async def patch_client(client_id: int, data: ClientCreate, db: AsyncSession = De
     if not client:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client not found.")
 
-    # Atualiza apenas os campos enviados (PATCH = atualização parcial)
     update_fields = data.model_dump(exclude_unset=True)
 
     for field, value in update_fields.items():
@@ -107,9 +98,6 @@ async def patch_client(client_id: int, data: ClientCreate, db: AsyncSession = De
 
 @router.delete("/{client_id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def delete_client(client_id: int, db: AsyncSession = Depends(get_db)):
-    """
-    Remove um cliente pelo ID.
-    """
     stmt = select(Client).where(Client.id == client_id)
     result = await db.scalars(stmt)
     client = result.first()
