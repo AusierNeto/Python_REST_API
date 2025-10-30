@@ -62,8 +62,11 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 async def run_migrations_online():
-    """
-    Executa as migrações no modo 'online' (com engine async).
+    """Run migrations in 'online' mode with async engine.
+
+    In this scenario we need to create an Engine
+    and associate a connection with the context.
+
     """
     connectable = create_async_engine(
         database_url,
@@ -77,18 +80,17 @@ async def run_migrations_online():
     await connectable.dispose()
 
 def run_migration(connection) -> None:
-    """Run migrations in 'online' mode.
+    """Aux function to apply migrations.
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
+    Detect changes on models and apply them to DB schema.
 
     """
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
-        compare_type=True,  # detecta mudanças de tipo
-        compare_server_default=True,  # detecta alterações de default
-        render_as_batch=True,  # necessário se quiser suportar SQLite
+        compare_type=True,
+        compare_server_default=True,
+        render_as_batch=True,
     )
 
     with context.begin_transaction():
