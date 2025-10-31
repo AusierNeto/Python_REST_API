@@ -7,7 +7,7 @@ A API realiza integração com a [FakeStore API](https://fakestoreapi.com) para 
 
 ## 🚀 Tecnologias Utilizadas
 
-- **Python 3.12+**
+- **Python 3.10+**
 - **FastAPI**
 - **SQLAlchemy (async + asyncpg)**
 - **PostgreSQL 15**
