@@ -1,8 +1,8 @@
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from data.models import ProductSnapshot
 from datetime import datetime, timedelta
+from ..data.models import ProductSnapshot
 
 FAKESTORE_URL = "https://fakestoreapi.com/products"
 

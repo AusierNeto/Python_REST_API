@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
-from data.session import get_db
-from data.models import Favorite
-from data.schemas import FavoriteBase, FavoriteResponse
-from services.products import get_or_create_product_snapshot
+from ..data.session import get_db
+from ..data.models import Favorite, ProductSnapshot
+from ..data.schemas import FavoriteBase, FavoriteResponse
+from ..services.products import get_or_create_product_snapshot
 
 
 router = APIRouter(prefix="/clients/{client_id}/favorites", tags=["Favorites"])
@@ -53,7 +53,9 @@ async def list_favorites(client_id: int, db: AsyncSession = Depends(get_db)):
 
     response = []
     for fav in favorites:
-        snapshot = await db.get(type(fav).metadata.tables["products_snapshot"].mapper.class_, fav.product_snapshot_id)
+        print(fav)
+        stmt = select(ProductSnapshot).where(ProductSnapshot.id == fav.product_snapshot_id)
+        snapshot = (await db.scalars(stmt)).first()
         if not snapshot:
             continue
         response.append(FavoriteResponse(

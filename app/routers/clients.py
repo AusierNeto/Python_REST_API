@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 
-from data.schemas import ClientBase, ClientCreate
-from data.models import Client
-from data.session import get_db
+from ..data.schemas import ClientBase, ClientCreate
+from ..data.models import Client
+from ..data.session import get_db
 
 
 router = APIRouter(prefix="/clients", tags=["Clients"])

@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+      POSTGRES_DB: aiqfome
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - app/init_db.py:/docker-entrypoint-initdb.d/init_db.py
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ..
+      dockerfile: .
+    container_name: fastapi_app
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
